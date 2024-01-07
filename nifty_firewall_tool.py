@@ -8,8 +8,7 @@ from functools import wraps
 with open('config.json', 'r') as config_file:
     config = json.load(config_file)
 API_TOKEN = config['api_key']
-file_path = config['idk_how_to_make_an_api']['file_path']
-da_lemon = config['idk_how_to_make_an_api']['da_lemon']
+file_path = config['database']['file_path']
 
 app = Flask(__name__)
 
@@ -131,58 +130,32 @@ def token_required(f):
     def decorated_function(*args, **kwargs):
         token = request.headers.get('API-Token')
         if not token or token != API_TOKEN:
-            response_message = 'srry bro :(' + '\n' + da_lemon
+            response_message = 'Invalid Token :(' + '\n'
             return Response(response_message, status=403, content_type='text/plain')
         return f(*args, **kwargs)
     return decorated_function
 
 
 
-@app.route('/api/easteregg', methods=['GET'])
-def get_data():
-    ascii_art2 = """
-⢵⣺⣿⣻⣿⣷⢻⣿⣿⡽⣿⣿⣮⣻⢿⣿⡷⣟⣿⣿⣿⣷⣽⣻⣿⣿⣵⣪⣟⣿
-⠉⣼⣿⣷⣝⢿⣿⣿⣷⣽⣮⡻⣾⣿⣿⣿⣿⣾⣿⢿⣿⣷⣿⣷⣽⡝⢿⣿⣿⣿
-⣾⣿⣿⣿⣼⣷⣬⣙⠻⢿⣿⣷⣮⡻⣿⣿⣻⢿⣿⣿⡿⣿⣿⣿⣝⢯⡀⢹⣿⣿
-⣿⣿⣷⢿⣹⣿⣿⣿⣿⣶⣾⣿⣿⣿⣿⣿⣮⣳⢯⣷⣝⢿⣿⣿⣿⣯⡻⣶⣿⣿
-⣟⣿⣿⣏⢿⣿⡟⢻⣿⣿⣻⣿⣿⣿⣿⡻⢿⣻⣿⣿⣿⣿⣿⣿⣿⣿⣷⡽⣿⣿
-⣿⣿⣿⣿⣎⣿⣿⠖⣿⣿⣿⣿⣿⣟⢿⣿⡇⢻⣿⠇⢘⠻⣿⣿⣻⣿⣿⣿⣽⣿
-⣿⡿⣿⣿⣷⣾⣿⣄⠛⠃⡛⢍⠛⢿⣧⠁⠑⠢⢤⠴⠋⠀⣿⣿⣿⣿⣿⣿⣿⣿
-⣿⢆⢻⣿⣿⡞⣿⣏⠛⠛⠁⡘⠀⠀⠈⠑⠀⠀⠀⠀⠀⠀⢸⢹⣿⣿⣿⣿⣞⣿
-⣿⢇⡘⡏⢻⢻⣿⣿⠀⠀⠰⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠘⣿⣿⣿⢿⣿⣿
-⣿⠡⠬⠙⡈⣇⢻⣿⣇⠀⠀⠈⠂⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⢻⡇⠻⡄⠙⢿
-⢺⣷⠁⠃⠑⠙⠿⣿⢿⣧⡀⠀⠀⣤⠤⠄⠀⠀⠀⠀⠀⢀⣼⠃⢸⡇⠀⠁⠀⠸
-⣸⠇⠀⠀⠀⠀⠀⢹⠘⣿⠘⣦⡀⠀⢌⠨⠀⠀⠀⠀⣰⣿⡏⠀⠈⠇⠀⠀⠀⠀
-⠞⢄⠀⠀⠀⠀⠀⠀⠃⠘⡇⠈⠹⣦⡀⠀⠀⢀⡤⢺⢿⣿⠀⠀⠀⠀⠀⠀⠀⢀
-⢂⡀⢀⠀⠀⠁⠀⠀⠀⠀⠐⠀⠀⠘⡈⠑⠚⠁⠀⠀⢹⡙⢦⡀⠀⠀⠀⠀⠆⢸
-⠀⠀⠀⡀⡎⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠀⠀⠀⠀⠀⠿⡇⠀⢙⣷⠄⠀⢀⠀⠸
-"""
-    return Response(ascii_art2, content_type='text/plain')
-
-
-
-@app.route('/here/are/my/rules/sire', methods=['GET'])
+@app.route('/managment/get/rules', methods=['GET'])
 @token_required
 def get_active_rules():
     try:
         with open(file_path, "r") as file:
             nftables_content = file.readlines()
 
-        # Initialize a list to store the extracted rules
+        # list to store the extracted rules
         rules = []
 
-        # Regular expression pattern to match rule lines
         rule_pattern = r'^\s*(?P<protocol>tcp|udp)\s+dport\s+(?P<dport>\d+)\s+(?P<action>accept|drop);'
 
-        # Iterate through the lines in the file and extract matching rules
         for line in nftables_content:
-            line = line.strip()  # Remove leading/trailing whitespace
+            line = line.strip()
             match = re.match(rule_pattern, line)
             if match:
                 rule_data = match.groupdict()
                 rules.append(rule_data)
 
-        # Create a JSON response with the extracted and formatted rules
         response_data = {"rules": rules}
         return jsonify(response_data)
     except Exception as e:
@@ -190,7 +163,7 @@ def get_active_rules():
 
 
 
-@app.route('/welcome/to/the/allowlist', methods=['PUT'])
+@app.route('/managment/allowlist', methods=['PUT'])
 @token_required
 def whitelist_ip_with_port():
     whitelist = {
@@ -210,7 +183,7 @@ def whitelist_ip_with_port():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route ('/hippity/hoppity/your/packets/are/my/property', methods=['PUT'])
+@app.route ('/managment/update/ingress', methods=['PUT'])
 @token_required
 def update_nf_rules():
         
@@ -219,22 +192,19 @@ def update_nf_rules():
         "accept": []
     }
     try:
-        # Get the JSON data from the request
         data = request.get_json()
 
-        # Update the rules dictionary based on the received data
         for action, ports in data.items():
             if action in rules:
                 rules[action] = ports
 
-        # Update the nftables.conf file with the new rules
         update_nft_input(rules, data)
 
         return jsonify({'message': 'Rules updated successfully'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
-@app.route ('/hippity/hoppity/my/packets/are/my/property', methods=['PUT'])
+@app.route ('/managment/update/outgress', methods=['PUT'])
 @token_required
 def update_nf_rules():
         
@@ -243,15 +213,12 @@ def update_nf_rules():
         "accept": []
     }
     try:
-        # Get the JSON data from the request
         data = request.get_json()
 
-        # Update the rules dictionary based on the received data
         for action, ports in data.items():
             if action in rules:
                 rules[action] = ports
 
-        # Update the nftables.conf file with the new rules
         update_nft_output(rules, data)
 
         return jsonify({'message': 'Rules updated successfully'}), 200
@@ -259,7 +226,7 @@ def update_nf_rules():
         return jsonify({'error': str(e)}), 500
     
 
-@app.route ('/the/rules/didnt/work', methods=['PUT'])
+@app.route ('/managment/flush', methods=['PUT'])
 @token_required
 def flush_nf_rules():
     try:

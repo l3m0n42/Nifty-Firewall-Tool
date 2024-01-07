@@ -1,0 +1,7 @@
+{
+    "database": {
+        "file_path": "/KeyboardKowboys/nftables.conf"
+    },
+    "api_key": "<Enter your API key here>",
+    "debug_mode": true
+}
