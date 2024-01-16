@@ -1,5 +1,5 @@
 # Overview
-This repository contains a Docker container setup for `nftables`, a powerful firewall tool in Linux, equipped with an API for easy remote management. This solution is ideal for users looking to manage firewall rules efficiently in a containerized environment that is Distribution agnostic.
+This repository contains a Docker container setup for `nftables`, a powerful simple firewall tool in Linux, equipped with an API for easy remote management. This solution is ideal for users looking to manage firewall rules efficiently in a containerized environment that is Distribution agnostic.
 
 The Container must be ran with the `NET_ADMIN` capability and be in the host's network namespace.
 
